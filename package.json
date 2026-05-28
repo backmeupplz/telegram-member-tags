@@ -1,0 +1,21 @@
+{
+  "name": "telegram-member-tags",
+  "version": "0.1.0",
+  "description": "Telegram group bot that assigns funny context-aware member tags with Kimi via Fireworks.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "grammy": "^1.36.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.15",
+    "typescript": "^5.8.3"
+  }
+}
