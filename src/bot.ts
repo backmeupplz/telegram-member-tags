@@ -4,6 +4,7 @@ import {
   activeMembers,
   addMessage,
   ensureChat,
+  ensureMember,
   getChat,
   markSetupWarningSent,
   markTaggingComplete,
@@ -134,10 +135,15 @@ async function retagChat(
   runningRetags.add(chatId)
   try {
     const chat = getChat(chatId)
+    if (!chat) {
+      return
+    }
+
+    await ensureBotMember(bot, chatId)
     const members = activeMembers(chatId)
     const messages = recentMessages(chatId)
 
-    if (!chat || messages.length < 10 || members.length < 2) {
+    if (messages.length < 10 || members.length < 2) {
       if (options.notify) {
         await options.ctx?.reply('I need at least 10 messages from a few people first.')
       }
@@ -189,6 +195,16 @@ async function retagChat(
   } finally {
     runningRetags.delete(chatId)
   }
+}
+
+async function ensureBotMember(bot: Bot, chatId: number) {
+  const me = await bot.api.getMe()
+  ensureMember({
+    chatId,
+    userId: me.id,
+    username: me.username,
+    displayName: `${formatBotDisplayName(me)} (this bot)`,
+  })
 }
 
 async function setChatMemberTag(
@@ -248,5 +264,14 @@ function messageText(ctx: Context) {
 }
 
 function formatDisplayName(user: NonNullable<Context['from']>) {
+  return [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || String(user.id)
+}
+
+function formatBotDisplayName(user: {
+  id: number
+  first_name: string
+  last_name?: string
+  username?: string
+}) {
   return [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || String(user.id)
 }

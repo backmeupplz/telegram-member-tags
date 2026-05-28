@@ -112,6 +112,27 @@ export function upsertMember(params: {
   )
 }
 
+export function ensureMember(params: {
+  chatId: number
+  userId: number
+  username?: string
+  displayName: string
+}) {
+  db.query(
+    `INSERT INTO members (chat_id, user_id, username, display_name, message_count)
+     VALUES (?, ?, ?, ?, 0)
+     ON CONFLICT(chat_id, user_id) DO UPDATE SET
+       username = excluded.username,
+       display_name = excluded.display_name,
+       last_seen_at = CURRENT_TIMESTAMP`
+  ).run(
+    params.chatId,
+    params.userId,
+    params.username ?? null,
+    params.displayName
+  )
+}
+
 export function addMessage(params: {
   chatId: number
   telegramMessageId: number
