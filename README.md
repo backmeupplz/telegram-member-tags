@@ -14,11 +14,11 @@ Bot: [@tag_smart_bot](https://t.me/tag_smart_bot)
 
 ## Telegram Setup
 
-This is the same setup shown by `/start` in the bot.
+This is the same setup shown by `/start` and `/help` in the bot.
 
 1. Add the bot to a group.
 2. Promote it to admin with the right to change member tags.
-3. Send `/start` or `/retag` in the group to verify setup.
+3. Send `/start`, `/help`, or `/retag` in the group to verify setup.
 
 Messages and tags never mix between groups.
 

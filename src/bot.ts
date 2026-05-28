@@ -37,6 +37,15 @@ export function createBot() {
     await ctx.reply(setupText)
   })
 
+  bot.command('help', async (ctx) => {
+    if (isGroup(ctx)) {
+      await registerChat(ctx)
+      await ctx.reply(setupText)
+      return
+    }
+    await ctx.reply(setupText)
+  })
+
   bot.command('retag', async (ctx) => {
     if (!isGroup(ctx)) {
       await ctx.reply('Add me to a group first, then run /retag there.')
