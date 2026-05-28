@@ -84,6 +84,7 @@ export function buildTagPrompt(context: TagContext) {
   return [
     'You assign Telegram member tags for one group chat.',
     'The tags should be funny, specific to recent behavior, affectionate, and short.',
+    'Use the same language and script as the recent chat. If the chat is mixed-language, use the dominant language; when one user clearly writes in another language, that user\'s tag may match their own language.',
     `Hard limit: every tag must be at most ${config.TAG_MAX_LENGTH} characters.`,
     'Do not use slurs, sexual labels, harassment, threats, or sensitive-trait guesses.',
     'Do not tag people based on race, religion, nationality, sexuality, health, disability, or politics unless the user explicitly self-identifies and it is clearly harmless.',
