@@ -64,6 +64,8 @@ describe('buildTagPrompt', () => {
 
     expect(prompt).toContain('Group: One Group')
     expect(prompt).toContain('ship it')
+    expect(prompt).toContain('Use recent messages as evidence, not as tag text')
+    expect(prompt).toContain('Invent compact persona/vibe labels')
     expect(prompt).toContain('Use the same language and script as the recent chat')
     expect(prompt).not.toContain('Other Group')
   })
