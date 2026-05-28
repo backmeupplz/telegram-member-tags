@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Tag Smart Bot avatar">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="44%" r="66%">
+      <stop offset="0%" stop-color="#1aa7a1"/>
+      <stop offset="54%" stop-color="#0d4d58"/>
+      <stop offset="100%" stop-color="#131820"/>
+    </radialGradient>
+    <linearGradient id="bubble" x1="231" y1="188" x2="746" y2="710" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eef8f5" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#8de2cf" stop-opacity=".28"/>
+    </linearGradient>
+    <linearGradient id="tag" x1="302" y1="323" x2="754" y2="694" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff7cb"/>
+      <stop offset=".43" stop-color="#ffcf5a"/>
+      <stop offset="1" stop-color="#ff8d3b"/>
+    </linearGradient>
+    <linearGradient id="tagEdge" x1="306" y1="260" x2="784" y2="776" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fffbea"/>
+      <stop offset="1" stop-color="#d96027"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="673" y1="172" x2="782" y2="316" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f2ff7b"/>
+      <stop offset="1" stop-color="#68fff1"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="34" flood-color="#071014" flood-opacity=".42"/>
+    </filter>
+    <filter id="innerGlow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <circle cx="512" cy="512" r="414" fill="none" stroke="#ffffff" stroke-opacity=".08" stroke-width="2"/>
+
+  <g opacity=".64">
+    <path d="M269 273h325c72 0 130 50 130 112s-58 112-130 112H418l-105 78 27-78h-71c-72 0-130-50-130-112s58-112 130-112Z" fill="url(#bubble)"/>
+    <path d="M655 470h108c58 0 105 41 105 91s-47 91-105 91h-38l17 51-69-51h-18c-58 0-105-41-105-91s47-91 105-91Z" fill="#f6fffb" fill-opacity=".2"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M315 366c0-38 31-69 69-69h267c18 0 35 7 48 20l113 113c27 27 27 70 0 97L609 730c-27 27-70 27-97 0L335 553c-13-13-20-30-20-49V366Z" fill="url(#tagEdge)"/>
+    <path d="M344 377c0-29 23-52 52-52h238c15 0 29 6 39 16l110 110c20 20 20 53 0 73L596 711c-20 20-53 20-73 0L359 547c-10-10-15-23-15-37V377Z" fill="url(#tag)"/>
+    <circle cx="436" cy="426" r="43" fill="#113743" opacity=".92"/>
+    <circle cx="436" cy="426" r="17" fill="#83fff0"/>
+    <path d="M410 551c77 54 171 59 251 11" fill="none" stroke="#37281b" stroke-width="28" stroke-linecap="round"/>
+    <path d="M435 531c16 10 36 17 58 21" fill="none" stroke="#fff7cf" stroke-width="15" stroke-linecap="round" opacity=".7"/>
+    <path d="M384 354c0-10 8-18 18-18h226c8 0 15 3 20 8l100 100" fill="none" stroke="#fffdf2" stroke-width="18" stroke-linecap="round" opacity=".38"/>
+  </g>
+
+  <g filter="url(#innerGlow)">
+    <path d="M731 164l23 67 69 25-69 25-23 67-25-67-68-25 68-25 25-67Z" fill="url(#spark)"/>
+    <path d="M247 657l14 39 40 15-40 14-14 39-15-39-40-14 40-15 15-39Z" fill="#affff0" opacity=".9"/>
+    <circle cx="780" cy="673" r="20" fill="#ffeb75" opacity=".8"/>
+    <circle cx="205" cy="356" r="15" fill="#f6fffb" opacity=".55"/>
+  </g>
+</svg>
