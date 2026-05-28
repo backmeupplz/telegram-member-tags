@@ -1,14 +1,26 @@
-# Telegram Member Tags
+# Tag Smart Bot
 
 Telegram group bot that watches group chat messages and periodically asks Kimi K2.6 Turbo, via Fireworks, to assign funny context-aware member tags.
 
+Bot: [@tag_smart_bot](https://t.me/tag_smart_bot)
+
+## What It Does
+
+- Stores message context separately per Telegram group.
+- Recalculates tags automatically every ~100 text messages by default.
+- Uses Kimi K2.6 Turbo through Fireworks for context-aware tag suggestions.
+- Matches tag language and script to the chat's dominant language.
+- Updates Telegram member tags through the Bot API when the bot has admin rights.
+
 ## Telegram Setup
+
+This is the same setup shown by `/start` in the bot.
 
 1. Add the bot to a group.
 2. Promote it to admin with the right to change member tags.
 3. Send `/start` or `/retag` in the group to verify setup.
 
-The bot stores context per Telegram chat ID. Messages and tags never mix between groups.
+Messages and tags never mix between groups.
 
 ## Environment
 
