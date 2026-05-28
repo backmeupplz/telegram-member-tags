@@ -18,10 +18,9 @@ const setupText = [
   'I can assign context-aware member tags every ~100 messages.',
   '',
   'Setup:',
-  '1. Disable privacy mode for me in BotFather so I can read group messages.',
-  '2. Add me to a group.',
-  '3. Promote me to admin with the right to change member tags.',
-  '4. Send /retag after the group has some chat history.',
+  '1. Add me to a group.',
+  '2. Promote me to admin with the right to change member tags.',
+  '3. Send /retag after the group has some chat history.',
 ].join('\n')
 
 const runningRetags = new Set<number>()

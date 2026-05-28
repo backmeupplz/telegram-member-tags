@@ -4,10 +4,9 @@ Telegram group bot that watches group chat messages and periodically asks Kimi K
 
 ## Telegram Setup
 
-1. In BotFather, disable privacy mode for the bot so it receives all group messages.
-2. Add the bot to a group.
-3. Promote it to admin with the right to change member tags.
-4. Send `/start` or `/retag` in the group to verify setup.
+1. Add the bot to a group.
+2. Promote it to admin with the right to change member tags.
+3. Send `/start` or `/retag` in the group to verify setup.
 
 The bot stores context per Telegram chat ID. Messages and tags never mix between groups.
 
