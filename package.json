@@ -1,7 +1,7 @@
 {
   "name": "telegram-member-tags",
   "version": "0.1.0",
-  "description": "Telegram group bot that assigns funny context-aware member tags with Kimi K2.6 Turbo via Fireworks.",
+  "description": "Telegram group bot that assigns funny context-aware member tags with OpenAI-compatible LLMs.",
   "homepage": "https://t.me/tag_smart_bot",
   "repository": {
     "type": "git",
@@ -11,8 +11,8 @@
     "telegram-bot",
     "grammy",
     "bun",
-    "kimi",
-    "fireworks",
+    "openrouter",
+    "llm",
     "member-tags"
   ],
   "type": "module",

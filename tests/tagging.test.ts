@@ -2,6 +2,9 @@ import { describe, expect, test } from 'bun:test'
 
 process.env.TELEGRAM_BOT_TOKEN = 'test-token'
 process.env.FIREWORKS_API_KEY = 'test-fireworks-key'
+process.env.LLM_API_KEY = 'test-llm-key'
+process.env.LLM_BASE_URL = 'https://openrouter.ai/api/v1/'
+process.env.LLM_MODELS = 'first/free:free, second/free:free'
 
 const { buildTagPrompt, normalizeTag, parseTagPlan } = await import(
   '../src/tagging'
