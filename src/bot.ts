@@ -117,6 +117,14 @@ export function createBot() {
     }
   })
 
+  bot.catch((error) => {
+    console.error('bot update failed', {
+      updateId: error.ctx.update.update_id,
+      error:
+        error.error instanceof Error ? error.error.message : String(error.error),
+    })
+  })
+
   return bot
 }
 
@@ -161,13 +169,27 @@ async function retagChat(
     }
 
     const knownUserIds = new Set(members.map((member) => member.userId))
-    const suggestions = (await suggestTags({
-      chatTitle: chat.title,
-      members,
-      messages,
-    }))
-      .filter((suggestion) => knownUserIds.has(suggestion.userId))
-      .slice(0, config.MAX_TAG_CHANGES_PER_RUN)
+    let suggestions
+    try {
+      suggestions = (await suggestTags({
+        chatTitle: chat.title,
+        members,
+        messages,
+      }))
+        .filter((suggestion) => knownUserIds.has(suggestion.userId))
+        .slice(0, config.MAX_TAG_CHANGES_PER_RUN)
+    } catch (error) {
+      console.error('tag suggestion failed', {
+        chatId,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      if (options.notify) {
+        await options.ctx?.reply('The tag model is temporarily rate-limited. Try again shortly.')
+      } else {
+        markTaggingComplete(chatId)
+      }
+      return
+    }
 
     let applied = 0
     for (const suggestion of suggestions) {
