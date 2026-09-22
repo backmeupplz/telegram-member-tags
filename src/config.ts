@@ -26,6 +26,8 @@ const schema = z.object({
   TAG_MAX_LENGTH: z.coerce.number().int().min(4).max(32).default(16),
   AI_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.9),
   AI_MAX_TOKENS: z.coerce.number().int().positive().default(2500),
+  AI_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
+  AI_TOTAL_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
 })
 
 const parsed = schema.safeParse(process.env)
