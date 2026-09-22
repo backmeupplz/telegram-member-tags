@@ -13,7 +13,7 @@ import {
   trimMessages,
   upsertMember,
 } from './db'
-import { suggestTags } from './ai'
+import { suggestTags, tagSuggestionFailureReply } from './ai'
 
 const setupText = [
   'I can assign context-aware member tags every ~100 messages.',
@@ -128,7 +128,7 @@ export function createBot() {
   return bot
 }
 
-async function retagChat(
+export async function retagChat(
   bot: Bot,
   chatId: number,
   options: { notify: boolean; ctx?: Context }
@@ -184,7 +184,7 @@ async function retagChat(
         error: error instanceof Error ? error.message : String(error),
       })
       if (options.notify) {
-        await options.ctx?.reply('The tag model is temporarily rate-limited. Try again shortly.')
+        await options.ctx?.reply(tagSuggestionFailureReply(error))
       } else {
         markTaggingComplete(chatId)
       }
