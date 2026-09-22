@@ -9,10 +9,14 @@ const originalFetch = globalThis.fetch
 const { suggestTags, tagSuggestionFailureReply } = await import('../src/ai')
 const { config } = await import('../src/config')
 const originalModels = [...config.AI_MODELS]
+const originalRequestTimeoutMs = config.AI_REQUEST_TIMEOUT_MS
+const originalTotalTimeoutMs = config.AI_TOTAL_TIMEOUT_MS
 
 afterEach(() => {
   globalThis.fetch = originalFetch
   config.AI_MODELS = [...originalModels]
+  config.AI_REQUEST_TIMEOUT_MS = originalRequestTimeoutMs
+  config.AI_TOTAL_TIMEOUT_MS = originalTotalTimeoutMs
 })
 
 describe('suggestTags', () => {
@@ -261,6 +265,43 @@ describe('suggestTags', () => {
     const error = await suggestTags(context).catch((caught) => caught)
     expect(error).toMatchObject({ kind: 'quota' })
     expect(tagSuggestionFailureReply(error)).toContain('free request quota')
+    expect(calls).toBe(1)
+  })
+
+  test('falls back after ambiguous model-specific quota wording', async () => {
+    const calls: string[] = []
+    globalThis.fetch = (async (_url, init) => {
+      const model = (JSON.parse(String(init?.body)) as { model: string }).model
+      calls.push(model)
+      if (model === 'first/free:free') {
+        return new Response(
+          '{"error":{"message":"Upstream model quota exhausted"}}',
+          { status: 429, headers: { 'Retry-After': '60' } }
+        )
+      }
+      return successfulResponse()
+    }) as typeof fetch
+
+    await expect(suggestTags(context)).resolves.toHaveLength(1)
+    expect(calls).toEqual(['first/free:free', 'second/free:free'])
+  })
+
+  test('enforces one elapsed-time budget across all models', async () => {
+    config.AI_REQUEST_TIMEOUT_MS = 1_000
+    config.AI_TOTAL_TIMEOUT_MS = 20
+    let calls = 0
+    globalThis.fetch = (async (_url, init) => {
+      calls += 1
+      return await new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => {
+          reject(new DOMException('timed out', 'TimeoutError'))
+        })
+      })
+    }) as typeof fetch
+
+    const startedAt = Date.now()
+    await expect(suggestTags(context)).rejects.toMatchObject({ kind: 'timeout' })
+    expect(Date.now() - startedAt).toBeLessThan(500)
     expect(calls).toBe(1)
   })
 

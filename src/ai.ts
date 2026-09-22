@@ -41,11 +41,10 @@ export class TagSuggestionError extends Error {
   }
 }
 
-const requestTimeoutMs = 30_000
 const defaultRetryDelayMs = 250
 const maxRetryDelayMs = 5_000
 
-async function requestTagPlan(prompt: string, model: string) {
+async function requestTagPlan(prompt: string, model: string, timeoutMs: number) {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${config.AI_API_KEY}`,
     'Content-Type': 'application/json',
@@ -78,7 +77,7 @@ async function requestTagPlan(prompt: string, model: string) {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(requestTimeoutMs),
+      signal: AbortSignal.timeout(Math.max(1, timeoutMs)),
     })
   } catch (error) {
     throw normalizeRequestError(error, model)
@@ -116,19 +115,31 @@ export async function suggestTags(context: TagContext) {
   const prompt = buildTagPrompt(context)
   const failures: TagSuggestionError[] = []
   let retryUsed = false
+  const deadline = Date.now() + config.AI_TOTAL_TIMEOUT_MS
 
-  for (const model of config.AI_MODELS) {
+  modelLoop: for (const model of config.AI_MODELS) {
     for (let attempt = 1; attempt <= 2; attempt += 1) {
+      const remainingMs = deadline - Date.now()
+      if (remainingMs <= 0) {
+        failures.push(new TagSuggestionError('timeout', model))
+        break modelLoop
+      }
       try {
-        return await requestTagPlan(prompt, model)
+        return await requestTagPlan(
+          prompt,
+          model,
+          Math.min(config.AI_REQUEST_TIMEOUT_MS, remainingMs)
+        )
       } catch (error) {
         const failure = normalizeRequestError(error, model)
         failures.push(failure)
         const retryDelay = failure.retryAfterMs ?? defaultRetryDelayMs
+        const retryBudgetMs = deadline - Date.now()
         const retrying =
           !retryUsed &&
           attempt === 1 &&
           retryDelay <= maxRetryDelayMs &&
+          retryDelay < retryBudgetMs &&
           (failure.kind === 'rate-limit' ||
             (failure.kind === 'provider' &&
               (failure.status === 402 || failure.status === 503) &&
@@ -213,7 +224,7 @@ function classifyHttpError(response: Response, body: string, model: string) {
     return new TagSuggestionError('timeout', model, status)
   }
   if (status === 429) {
-    const kind = isAccountWideQuota(body) ? 'quota' : 'rate-limit'
+    const kind = isAccountWideQuota(providerError) ? 'quota' : 'rate-limit'
     return new TagSuggestionError(
       kind,
       model,
@@ -254,9 +265,13 @@ function isSharedAccountFailure(kind: TagSuggestionFailureKind) {
   )
 }
 
-function isAccountWideQuota(body: string) {
-  return /free[-_ ]models?[-_ ]per[-_ ]day|free_model_daily_requests|daily (?:request )?(?:quota|limit)|quota exhausted/i.test(
-    body
+function isAccountWideQuota(providerError?: ChatCompletionResponse['error']) {
+  const limitSource = providerError?.metadata?.limit_source
+  return (
+    limitSource === 'free_model_daily_requests' ||
+    /free[-_ ]models?[-_ ]per[-_ ]day|free_model_daily_requests/i.test(
+      providerError?.message ?? ''
+    )
   )
 }
 
