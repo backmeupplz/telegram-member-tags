@@ -2,3 +2,7 @@
 node_modules
 .env
 data
+tests
+assets
+.forgejo
+.github
