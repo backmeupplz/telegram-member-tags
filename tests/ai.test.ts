@@ -287,7 +287,8 @@ describe('suggestTags', () => {
   })
 
   test('enforces one elapsed-time budget across all models', async () => {
-    config.AI_REQUEST_TIMEOUT_MS = 1_000
+    // One request alone would outlast bun's 5 s test timeout, so passing at all shows the shared budget cut it short
+    config.AI_REQUEST_TIMEOUT_MS = 10_000
     config.AI_TOTAL_TIMEOUT_MS = 20
     let calls = 0
     globalThis.fetch = (async (_url, init) => {
@@ -299,9 +300,7 @@ describe('suggestTags', () => {
       })
     }) as typeof fetch
 
-    const startedAt = Date.now()
     await expect(suggestTags(context)).rejects.toMatchObject({ kind: 'timeout' })
-    expect(Date.now() - startedAt).toBeLessThan(500)
     expect(calls).toBe(1)
   })
 

@@ -2,9 +2,12 @@ import { expect, test } from 'bun:test'
 import { Bot } from 'grammy'
 import { startWithHandover } from '../src/handover'
 
-// A fake Bot API: long polls return `batch` once, then hang until aborted
+// A fake Bot API: long polls return `batch` once, then hang until aborted. SIGTERM arrives once the
+// bot is busy: inside the first handler (held until then), or, with an empty batch, in the second long poll.
 async function stopAfter(batch: number[]) {
   const calls: Record<string, unknown>[] = []
+  const busy = Promise.withResolvers<void>()
+  const release = Promise.withResolvers<void>()
   const server = Bun.serve({
     port: 0,
     async fetch(req) {
@@ -15,7 +18,10 @@ async function stopAfter(batch: number[]) {
       }
       if (method !== 'getUpdates') return Response.json({ ok: true, result: true })
       calls.push(body)
-      if (body.timeout && calls.length > 1) await Bun.sleep(60000)
+      if (body.timeout && calls.length > 1) {
+        busy.resolve()
+        await Bun.sleep(60000)
+      }
       const message = { message_id: 1, date: 0, chat: { id: 1, type: 'private' }, text: 'x' }
       const updates = calls.length > 1 ? [] : batch.map((update_id) => ({ update_id, message }))
       return Response.json({ ok: true, result: updates })
@@ -24,21 +30,22 @@ async function stopAfter(batch: number[]) {
   const bot = new Bot('1:x', { client: { apiRoot: `http://localhost:${server.port}` } })
   const handled: number[] = []
   bot.on('message', async (ctx) => {
-    await Bun.sleep(100)
+    busy.resolve()
+    await release.promise
     handled.push(ctx.update.update_id)
   })
   let closed = false
   const exit = process.exit
   const exited = new Promise((resolve) => ((process as any).exit = resolve))
   const polling = startWithHandover(bot, {}, () => (closed = true))
-  await Bun.sleep(150)
-  const t = Date.now()
+  await busy.promise
   process.emit('SIGTERM')
+  release.resolve()
   await exited
   await polling
   process.exit = exit
   server.stop(true)
-  return { calls, handled, closed, ms: Date.now() - t }
+  return { calls, handled, closed }
 }
 
 test('stopping mid-batch confirms the whole batch and finishes handling it', async () => {
@@ -49,7 +56,6 @@ test('stopping mid-batch confirms the whole batch and finishes handling it', asy
 })
 
 test('stopping while idle sends no confirming getUpdates', async () => {
-  const { calls, ms } = await stopAfter([])
+  const { calls } = await stopAfter([])
   expect(calls.length).toBe(2)
-  expect(ms).toBeLessThan(1000)
 })
